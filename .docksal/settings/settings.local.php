@@ -163,6 +163,8 @@ if (PHP_SAPI !== 'cli') {
 	}
 }
 
+$settings['config_sync_directory'] = '../config/sync';
+
 $settings['redis.connection']['interface'] = 'PhpRedis';
 $settings['redis.connection']['host'] = 'redis';
 $settings['cache']['default'] = 'cache.backend.redis';
@@ -170,5 +172,3 @@ $settings['redis.connection']['persistent'] = TRUE;
 $settings['redis.connection']['read_timeout'] = 15;
 $settings['redis.connection']['timeout'] = 20;
 $settings['redis_compress_length'] = 100;
-
-$settings['config_sync_directory'] = '../config/sync';
