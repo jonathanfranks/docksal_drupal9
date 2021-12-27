@@ -1,0 +1,23 @@
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext
+        - Drupal\DrupalExtension\Context\MinkContext
+  extensions:
+    Behat\MinkExtension:
+      goutte: ~
+      base_url: http://web
+      default_session: goutte
+      files_path: '%paths.base%/testfiles'
+      browser_name: chrome
+      selenium2:
+        wd_host: http://browser:4444/wd/hub
+        capabilities: { "browser": "chrome", "version": "*", "extra_capabilities":{"idleTimeout":300, "chromeOptions":{"w3c":false}} }
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: 'drupal'
+      drupal:
+        drupal_root: '/var/www/web'
+      drush:
+        root: '/var/www/web'

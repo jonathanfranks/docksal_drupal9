@@ -1,1 +1,16 @@
 version: "2.1"
+
+services:
+  browser:
+    hostname: browser
+    # Pin selenium image to an older version
+    # See https://github.com/docksal/docksal/issues/1096#issuecomment-543316840
+    image: selenium/standalone-chrome-debug:3.5.0
+    dns:
+      - ${DOCKSAL_DNS1}
+      - ${DOCKSAL_DNS2}
+
+  redis:
+    extends:
+      file: ${HOME}/.docksal/stacks/services.yml
+      service: redis
