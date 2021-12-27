@@ -68,9 +68,12 @@ init_settings ()
 	# TODO: Uncomment the local config (settings.local.php) include section in settings.php inline instead.
 	# That'a the only change we need in the stock settings.php
 	rm -f "${SITEDIR_PATH}/settings.php"
+	# Since we are using a Redis cache backend, we have to do our installation with the
+	# standard cache back-end and then turn on Redis settings after installation.
+	rm -f "${SITEDIR_PATH}/settings.local.php"
 
 	copy_settings_file "${PROJECT_ROOT}/.docksal/settings/settings.php" "${SITEDIR_PATH}/settings.php"
-	copy_settings_file "${PROJECT_ROOT}/.docksal/settings/settings.local.php" "${SITEDIR_PATH}/settings.local.php"
+	copy_settings_file "${PROJECT_ROOT}/.docksal/settings/settings.local.noredis.php" "${SITEDIR_PATH}/settings.local.php"
 }
 
 # Fix file/folder permissions
@@ -87,6 +90,12 @@ site_install ()
 
 	echo-green "Installing Drupal..."
 	drush site-install standard -y --site-name='My Drupal 9 Site'
+	drush cset system.site uuid "361b1817-e3cf-4a01-9040-5b98c0797b67" -y
+	drush ev '\Drupal::entityTypeManager()->getStorage("shortcut_set")->load("default")->delete();'
+	drush cim -y
+
+  rm -f "${SITEDIR_PATH}/settings.local.php"
+	copy_settings_file "${PROJECT_ROOT}/.docksal/settings/settings.local.php" "${SITEDIR_PATH}/settings.local.php"
 }
 
 #-------------------------- END: Functions --------------------------------
