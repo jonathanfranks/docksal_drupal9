@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+#: exec_target = cli
+
+## Run automated PHPUnit tests.
+##
+## Usage: fin phpunit <args>
+##
+## If a core/phpunit.xml file does not exist, one is copied from
+## .docksal/core/phpunit.xml if that file exists, or copied from the default
+## core/phpunit.xml.dist file.
+
+
+DOCROOT_PATH="${PROJECT_ROOT}/${DOCROOT}"
+DRUPAL_CORE_PATH="${DOCROOT_PATH}/core"
+
+run_tests() {
+    ${PROJECT_ROOT}/vendor/bin/phpunit -c ${DRUPAL_CORE_PATH} "$@"
+}
+
+if [ ! -e ${DRUPAL_CORE_PATH}/phpunit.xml ]; then
+    if [ -e "${PROJECT_ROOT}/.docksal/settings/phpunit.xml" ]; then
+        echo "Copying ${PROJECT_ROOT}/.docksal/settings/phpunit.xml to ${DRUPAL_CORE_PATH}/phpunit.xml"
+        cp "${PROJECT_ROOT}/.docksal/settings/phpunit.xml" ${DRUPAL_CORE_PATH}/phpunit.xml
+        run_tests "$@"
+    else
+        echo "Copying phpunit.xml.dist to phpunit.xml. Please edit its values as needed and re-run 'fin phpunit'."
+        cp ${DRUPAL_CORE_PATH}/phpunit.xml.dist ${DRUPAL_CORE_PATH}/phpunit.xml
+        exit 1;
+    fi
+else
+    run_tests "$@"
+fi
+

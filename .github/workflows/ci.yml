@@ -1,0 +1,65 @@
+# Run tests after push.
+
+name: CI
+
+# Controls when the action will run.
+on: [push]
+
+env:
+  # Disable CI mode so Docksal is setup as if it were a local workstation.
+  CI: ''
+  TEST_SITE_NAME: testtest
+  DOCKSAL_DNS_DISABLED: 1
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  docksal:
+    name: Setup Docksal
+    runs-on: ubuntu-latest
+    steps:
+      # Hack to fix docker-gen in Github Actions
+      # Drops docker daemon config with custom cgroup (which docker-gen does not support)
+      # See https://github.com/jwilder/docker-gen/issues/315
+      - name: Fix docker-gen in Github Actions
+        run: |
+          sudo rm /etc/docker/daemon.json
+          sudo service docker restart
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Docksal
+        run: |
+          bash <(curl -fsSL https://get.docksal.io)
+
+      - name: Get versions
+        run: |
+          fin version
+          fin sysinfo
+          docker version
+
+      - name: Initialize project
+        run: |
+          fin init
+
+       # Enable these if you have secrets for keys that you'll need during testing.
+#      - name: Set environment variables to secrets
+#        run: |
+#          echo ${{ secrets.API_ENDPOINT }} > keys/api_endpoint.key
+#          echo ${{ secrets.API_PASSWORD }} > keys/api_password.key
+#          echo ${{ secrets.API_USER }} > keys/api_user.key
+
+      - name: Reset cache
+        run: |
+          fin drush cr
+
+      - name: Test
+        run: |
+          fin test
+
+      - name: Codesniff
+        run: |
+          fin cs

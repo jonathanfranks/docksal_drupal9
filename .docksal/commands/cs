@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+## Run project's Codesniffer inspections.
+##
+## Usage: fin cs
+
+# Environment variables passed from fin:
+#
+#   $PROJECT_ROOT - (string) absolute path to NEAREST .docksal folder
+#   $VIRTUAL_HOST - (string) ex. projectname.docksal
+#   $DOCROOT - name of the docroot folder
+#   $DOCKER_RUNNING - (string) "true" or "false"
+
+fin exec "./vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md --ignore=node_modules,bower_components,vendor ./web/modules/custom"
+fin exec "./vendor/bin/phpcs --standard=Drupal,DrupalPractice --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md --ignore=node_modules,bower_components,vendor,.min.css ./web/themes/custom"
+fin exec "./vendor/bin/phpcs --standard=Drupal --extensions=php ./tests/features/bootstrap"

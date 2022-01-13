@@ -1,19 +1,34 @@
 #!/usr/bin/env bash
 
-## Test site installation
+## Run site tests.
 ##
 ## Usage: fin test
 
-# Abort if anything fails
-set -e
+run_tests ()
+{
+  # We stop and restart the project to start the test run with full memory.
+  fin project stop
+  fin project start
 
-# Debug mode switch
-if [[ "${DEBUG}" != "" ]]; then
-    set -x
-fi
+  # These are mostly split up because of high memory usage.
+  echo "Executing Behat JS tests..."
+  fin behat --tags=javascript
+  js_exit_code=$?
 
-echo "Testing home page..."
-curl -sL -I http://${VIRTUAL_HOST} | grep "HTTP/1.1 200 OK"
-curl -sL http://${VIRTUAL_HOST} | grep "My Drupal 9 Site"
-echo "Testing login page..."
-curl -sL -I http://${VIRTUAL_HOST}/user/login | grep "HTTP/1.1 200 OK"
+  echo "Executing Behat non-JS tests..."
+  fin behat --tags=~javascript
+  non_js_exit_code=$?
+
+  # We stop and restart the project to start the test run with full memory.
+  fin project stop
+  fin project start
+
+  echo "Executing PHPUnit tests..."
+  fin phpunit web/modules/custom
+  php_unit_exit_code=$?
+  echo "Exit $((h5p_exit_code + js_exit_code + non_js_exit_code + php_unit_exit_code))"
+  exit $((h5p_exit_code + js_exit_code + non_js_exit_code + php_unit_exit_code))
+}
+
+run_tests
+
